@@ -1,0 +1,34 @@
+[project]
+name = "dronePrjs"
+version = "0.0.0"
+description = "Umbrella project for closedSpace and openSpace drone applications."
+requires-python = ">=3.10"
+dependencies = [
+    "PyYAML>=6.0",
+    "jsonschema>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "ruff>=0.4",
+    "mypy>=1.0",
+]
+
+# pytest needs the project root on sys.path so `from closedSpace.map import load`
+# resolves without an editable install.
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = [
+    "engine/tests",
+    "closedSpace/tests",
+    "openSpace/tests",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true

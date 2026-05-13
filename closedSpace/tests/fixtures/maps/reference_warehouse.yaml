@@ -1,0 +1,228 @@
+# Reference warehouse map — used by ISC-1, 7, 16, 24, 31, 37 probes.
+#
+# Geometry summary:
+#   Floor:        12.0 m × 8.0 m
+#   Aisles:       A1 (x=3.0), A2 (x=8.0), both running north-south
+#   Aisle length: 5.0 m (y = 1.5 → 6.5)
+#   Aisle width:  2.4 m
+#   Per aisle:    4 racks per side × 2 sides = 8 racks
+#   Per rack:     4 levels (heights 0.5, 1.5, 2.5, 3.5 m)
+#   Total racks:  16
+#   Capture positions:  16 racks × 4 levels = 64
+#
+# Rack layout along each aisle (length 5.0 m, rack length 1.2 m):
+#   Buffer 0.1 | rack center 0.7 | rack center 1.9 | rack center 3.1 |
+#   rack center 4.3 | buffer 0.1 ← uniform 1.2 m center-to-center spacing.
+#   Rack extents: [0.1..1.3] [1.3..2.5] [2.5..3.7] [3.7..4.9] — all
+#   strictly inside [0.0..5.0].
+#
+# Path-length reference for ISC-7 will be hand-derived in the planner
+# test fixture. Threshold is ±5%.
+
+schema_version: "1.0"
+warehouse_id: "ref-wh-01"
+units: meters
+surveyed_at: "2026-04-15"
+surveyed_by: "closedSpace reference fixture (synthetic)"
+
+coverage_polygon:
+  - [0.0,  0.0]
+  - [12.0, 0.0]
+  - [12.0, 8.0]
+  - [0.0,  8.0]
+
+takeoff_pad:
+  position: [1.0, 1.0, 0.0]
+  yaw_deg: 0
+  radius_m: 0.5
+
+no_go_zones:
+  - id: "support_column_between_aisles"
+    polygon:
+      - [5.5, 4.0]
+      - [5.7, 4.0]
+      - [5.7, 4.2]
+      - [5.5, 4.2]
+    z_min: 0.0
+    z_max: 6.0
+
+aisles:
+  - id: "A1"
+    centerline:
+      start: [3.0, 1.5]
+      end:   [3.0, 6.5]
+    width_m: 2.4
+    direction: any
+    racks:
+      west:
+        - id: "A1-W1"
+          position_along: 0.7
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 270
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A1-W2"
+          position_along: 1.9
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 270
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A1-W3"
+          position_along: 3.1
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 270
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A1-W4"
+          position_along: 4.3
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 270
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+      east:
+        - id: "A1-E1"
+          position_along: 0.7
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 90
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A1-E2"
+          position_along: 1.9
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 90
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A1-E3"
+          position_along: 3.1
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 90
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A1-E4"
+          position_along: 4.3
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 90
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+
+  - id: "A2"
+    centerline:
+      start: [8.0, 1.5]
+      end:   [8.0, 6.5]
+    width_m: 2.4
+    direction: any
+    racks:
+      west:
+        - id: "A2-W1"
+          position_along: 0.7
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 270
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A2-W2"
+          position_along: 1.9
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 270
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A2-W3"
+          position_along: 3.1
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 270
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A2-W4"
+          position_along: 4.3
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 270
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+      east:
+        - id: "A2-E1"
+          position_along: 0.7
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 90
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A2-E2"
+          position_along: 1.9
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 90
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A2-E3"
+          position_along: 3.1
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 90
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }
+        - id: "A2-E4"
+          position_along: 4.3
+          length_m: 1.2
+          face_offset_m: 0.6
+          yaw_deg: 90
+          levels:
+            - { index: 0, height_m: 0.5 }
+            - { index: 1, height_m: 1.5 }
+            - { index: 2, height_m: 2.5 }
+            - { index: 3, height_m: 3.5 }

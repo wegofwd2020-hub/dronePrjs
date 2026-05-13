@@ -1,0 +1,12 @@
+The goal of this drone project is builda system that can provide drone with specific coordinated to positiona themselves and execute actions.
+
+The 2 use cases are titles as "closedSpace" and "openSpace"
+
+USE CASE
+
+Name: closedSpace
+Descrption: The company wants to use a drone to track the inventory in their warehouse. The warehouse has structured industrial shelfs. the Drone is expected to move along multiple aisle in the warehouse. Before every trip the drone will be provided with a structural maps of the ware house showing the aisleways and the height of the racks in aisle. The drone is expected to move along the aisle and at appropriate height and capture a images of the content of that space.
+
+
+Name: openSpace
+Descrption: The company wants to use a drone to track the inventory in their warehouse. The warehouse has structured industrial shelfs. the Drone is expected to move along multipel aisle in the warehouse. Every trip the drone will be provided with a structural maps of the ware house showing the aisleways and the height of the racks in aisle.
