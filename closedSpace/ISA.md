@@ -4,10 +4,10 @@ project: closedSpace
 effort: advanced
 effort_source: classifier
 phase: observe
-progress: 5/44
+progress: 6/44
 mode: interactive
 started: 2026-05-03T00:00:00Z
-updated: 2026-05-03T00:00:00Z
+updated: 2026-05-13T00:00:00Z
 ---
 
 ## Problem
@@ -139,7 +139,7 @@ flight (real hardware or high-fidelity simulator).
   set raises `UnsupportedMapVersionError` with the version string.
 - [x] ISC-4: Loaded map exposes `aisles[i].centerline`,
   `aisles[i].racks[side][j].levels[k].height_m` typed-attribute access.
-- [ ] ISC-5: Two distinct fixture maps round-trip through
+- [x] ISC-5: Two distinct fixture maps round-trip through
   `dump → load` without semantic loss (deep-equal modulo float epsilon).
 
 ### Mission planning

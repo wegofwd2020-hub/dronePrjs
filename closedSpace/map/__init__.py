@@ -3,6 +3,7 @@
 Public surface:
 
 * :func:`load` — read a YAML map and return a validated :class:`Map`.
+* :func:`dump` — serialize a :class:`Map` to YAML; round-trips with :func:`load`.
 * :class:`Map`, :class:`Aisle`, :class:`Rack`, :class:`Level`,
   :class:`NoGoZone`, :class:`TakeoffPad`, :class:`Point2D`,
   :class:`Point3D`, :class:`Centerline` — typed map structures.
@@ -11,6 +12,7 @@ Public surface:
 """
 from __future__ import annotations
 
+from closedSpace.map.dump import dump
 from closedSpace.map.loader import load
 from closedSpace.map.types import (
     Aisle,
@@ -42,5 +44,6 @@ __all__ = [
     "Rack",
     "TakeoffPad",
     "UnsupportedMapVersionError",
+    "dump",
     "load",
 ]

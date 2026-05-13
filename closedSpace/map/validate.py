@@ -17,8 +17,9 @@ violations) or :class:`UnsupportedMapVersionError` (version mismatch).
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import jsonschema
 
@@ -67,7 +68,7 @@ def load_schema() -> dict[str, Any]:
     """
     try:
         with _SCHEMA_PATH.open("r", encoding="utf-8") as f:
-            return json.load(f)
+            return cast(dict[str, Any], json.load(f))
     except FileNotFoundError as e:
         raise MapError(f"map.schema.json not found at {_SCHEMA_PATH}") from e
     except json.JSONDecodeError as e:
@@ -248,7 +249,7 @@ def _check_aisle(
 
 def _distance(p: tuple[float, float], q: tuple[float, float]) -> float:
     """Euclidean distance between two 2D points."""
-    return ((p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2) ** 0.5
+    return math.hypot(p[0] - q[0], p[1] - q[1])
 
 
 def _check_polygon_simple(polygon: list[list[float]], *, where: str) -> None:

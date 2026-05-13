@@ -3,8 +3,9 @@
 > Pickup point. Read this first when resuming work; it points at the
 > four canonical sources for everything we know about the project.
 
-**Last updated:** 2026-05-03 (paused)
-**Current phase:** observe (project ISA `phase: observe`, `progress: 5/44`)
+**Last updated:** 2026-05-13
+**Current phase:** observe (project ISA `phase: observe`, `progress: 6/44`)
+**Roadmap:** Phase 0 complete — Phase 1 (MissionPlanner) is the next chunk.
 
 ---
 
@@ -30,11 +31,14 @@
 - Warehouse map data model: schema doc, JSON Schema, reference fixture
   (64 capture positions).
 - Map loader + validator implemented in Python: `closedSpace/map/`.
-  22-case smoke runner passes against the reference fixture.
 - Optional provenance fields (`surveyed_at`, `surveyed_by`) added in
   schema v1, threaded through loader, ISC-43 verified.
 - pyproject.toml at project root with pytest config + deps declared.
 - Use cases + roadmap + drone survey all written under `docs/`.
+- **Phase 0 complete (2026-05-13):** git repo on GitHub, `.gitignore`,
+  `.venv` + editable install, `engine/` skeleton (4 subpackages),
+  `closedSpace.map.dump` (ISC-5 ✓), `Makefile` with `make all` green
+  (ruff clean, mypy strict clean, 25 tests pass).
 
 ## What's open
 
@@ -43,25 +47,13 @@
   kinematic now + Gazebo/PX4-SITL later).
 - **D3**: flight stack (recommended: defer; `engine.flight_control`
   Protocol abstracts it).
-- ISC-5 (map dump round-trip) — last loose end on the loader.
-- pytest is not yet installed in the local Python; smoke runner is
-  the workaround. Phase 0 fixes this.
 
 ## Suggested first move on resume
 
-**Phase 0 — Foundations** (~1–2 days). Tasks NS-0.1 through NS-0.6 in
-`docs/next-steps.md`:
-
-1. Create venv at `dronePrjs/.venv`, `pip install -e .[dev]`.
-2. Init git repo, commit current state.
-3. Add `.gitignore` (`__pycache__`, `.venv`, `.pytest_cache`).
-4. Scaffold `engine/` skeleton (empty modules).
-5. Implement ISC-5 (`closedSpace.map.dump`) + test.
-6. Add a `Makefile` with `test`, `lint`, `typecheck`, `all`.
-
-After Phase 0, **MissionPlanner (Phase 1)** is the next clean 3–5
-day chunk against the path-derivation contract in
-`docs/map-schema.md` §10.
+**Phase 1 — MissionPlanner** (~3–5 days). Implements the path-derivation
+contract from `docs/map-schema.md` §10. Tasks NS-1.1 through NS-1.5 in
+`docs/next-steps.md`; satisfies ISC-6 through ISC-10. Phase 1 has no
+external decision dependency — D1/D2/D3 don't gate it.
 
 ---
 
