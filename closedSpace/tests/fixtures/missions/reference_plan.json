@@ -1,0 +1,18 @@
+{
+  "_comment": "Hand-derived plan-level invariants for reference_warehouse.yaml at MissionConfig defaults (TAKEOFF=1.5, TRAVERSAL=1.0, speed=1.0, dwell=3.0). Locks in ISC-7 (path length ±5%) and ISC-8 (duration <= 900s). The derivation is in closedSpace/tests/fixtures/missions/reference_plan.derivation.md.",
+  "map": "reference_warehouse.yaml",
+  "config": {
+    "takeoff_height_m": 1.5,
+    "aisle_traversal_height_m": 1.0,
+    "max_mission_duration_s": 900.0,
+    "nominal_speed_mps": 1.0,
+    "capture_dwell_s": 3.0
+  },
+  "expected": {
+    "waypoint_count": 70,
+    "capture_count": 64,
+    "path_length_m": 118.0317,
+    "path_length_tolerance_pct": 5.0,
+    "est_duration_s": 310.0317
+  }
+}

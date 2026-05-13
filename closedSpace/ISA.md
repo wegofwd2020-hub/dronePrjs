@@ -4,7 +4,7 @@ project: closedSpace
 effort: advanced
 effort_source: classifier
 phase: observe
-progress: 6/44
+progress: 11/44
 mode: interactive
 started: 2026-05-03T00:00:00Z
 updated: 2026-05-13T00:00:00Z
@@ -143,15 +143,15 @@ flight (real hardware or high-fidelity simulator).
   `dump → load` without semantic loss (deep-equal modulo float epsilon).
 
 ### Mission planning
-- [ ] ISC-6: `closedSpace.mission.plan(map)` returns a `MissionPlan`
+- [x] ISC-6: `closedSpace.mission.plan(map)` returns a `MissionPlan`
   containing one waypoint per declared (aisle, rack, shelf-level) tuple.
-- [ ] ISC-7: The plan's total path length matches a hand-computed
+- [x] ISC-7: The plan's total path length matches a hand-computed
   reference within ±5% on `reference_warehouse.yaml`.
-- [ ] ISC-8: Plan estimated duration is reported in seconds and is
+- [x] ISC-8: Plan estimated duration is reported in seconds and is
   ≤ `MAX_MISSION_DURATION_S` (900 s) for the reference fixture.
-- [ ] ISC-9: Aisle traversal direction alternates (boustrophedon)
+- [x] ISC-9: Aisle traversal direction alternates (boustrophedon)
   unless the map declares one-way constraints.
-- [ ] ISC-10: A map with a no-go zone produces a plan whose waypoints
+- [x] ISC-10: A map with a no-go zone produces a plan whose waypoints
   do not enter the zone (probe: spatial intersection check).
 
 ### Localization & control

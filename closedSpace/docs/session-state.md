@@ -4,8 +4,9 @@
 > four canonical sources for everything we know about the project.
 
 **Last updated:** 2026-05-13
-**Current phase:** observe (project ISA `phase: observe`, `progress: 6/44`)
-**Roadmap:** Phase 0 complete — Phase 1 (MissionPlanner) is the next chunk.
+**Current phase:** observe (project ISA `phase: observe`, `progress: 11/44`)
+**Roadmap:** Phase 0 + Phase 1 complete — Phase 2 (engine Protocols) is
+the next chunk. D1–D3 still gate Phase 3 simulator bring-up.
 
 ---
 
@@ -39,6 +40,14 @@
   `.venv` + editable install, `engine/` skeleton (4 subpackages),
   `closedSpace.map.dump` (ISC-5 ✓), `Makefile` with `make all` green
   (ruff clean, mypy strict clean, 25 tests pass).
+- **Phase 1 complete (2026-05-13):** `closedSpace/mission/` package
+  with pure `plan(map, config) → MissionPlan`. ISC-6 through ISC-10
+  all `[x]`. Reference fixture produces 70 waypoints (64 captures),
+  path length 118.0316 m matches hand-derived reference to 4 decimals,
+  est duration 310 s ≪ 900 s cap. Spec ambiguity in §10.2 vs §10.2.3.2
+  resolved in favor of §10.2.2 "minimum transit" intent: racks visited
+  in entry-direction physical order (reversed on alternate aisles).
+  Documented in `closedSpace/mission/plan.py` module docstring.
 
 ## What's open
 
@@ -50,10 +59,16 @@
 
 ## Suggested first move on resume
 
-**Phase 1 — MissionPlanner** (~3–5 days). Implements the path-derivation
-contract from `docs/map-schema.md` §10. Tasks NS-1.1 through NS-1.5 in
-`docs/next-steps.md`; satisfies ISC-6 through ISC-10. Phase 1 has no
-external decision dependency — D1/D2/D3 don't gate it.
+**Phase 2 — Engine contracts** (~2–3 days). Define the Protocol surface
+in `engine/` that every flight-platform implementation must conform to:
+`SLAMProvider`, `FlightController`, `TelemetryBus`, `Camera`, plus an
+in-process kinematic stub. Tasks NS-2.1 through NS-2.6 in
+`docs/next-steps.md`. Anti-scope guard test (NS-2.6) satisfies ISC-36
+("engine doesn't import any closedSpace symbol"). No decision gates.
+
+After Phase 2 the closedSpace mission planner can run end-to-end
+against the in-process sim, unlocking the Phase 4 capture/storage/report
+work.
 
 ---
 
