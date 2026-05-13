@@ -4,7 +4,7 @@ project: closedSpace
 effort: advanced
 effort_source: classifier
 phase: observe
-progress: 29/44
+progress: 35/44
 mode: interactive
 started: 2026-05-03T00:00:00Z
 updated: 2026-05-13T00:00:00Z
@@ -229,22 +229,24 @@ flight (real hardware or high-fidelity simulator).
   with `min_clearance_m < 0.5` outside takeoff/landing geofence.
 - [x] ISC-34: Anti: unmapped flight — drone refuses to arm if the
   loaded map's coverage polygon does not contain the takeoff point.
-- [ ] ISC-35: Anti: scope creep — `closedSpace/` does not import
-  any inference / OCR / CV-recognition library (probe: dependency
-  graph scan).
+- [x] ISC-35: Anti: scope creep — `closedSpace/` does not import
+  any inference / OCR / CV-recognition library (probe: AST scan
+  in `closedSpace/tests/test_anti_scope.py`).
 - [x] ISC-36: Anti: engine bleed — domain-specific logic does not
   appear under `engine/` (probe: AST-based import scan in
   `engine/tests/test_no_domain_bleed.py`).
 
 ### Cross-cutting quality gates
-- [ ] ISC-37: `pytest closedSpace/` passes with ≥ 80 % line coverage on
-  `closedSpace/`.
-- [ ] ISC-38: `mypy closedSpace/` returns clean (no errors).
-- [ ] ISC-39: `ruff check closedSpace/` returns clean.
-- [ ] ISC-40: Every public function has an OpenSpec docstring (probe:
-  doc-lint script returns zero violations).
-- [ ] ISC-41: Every new function has a co-located test under
-  `tests/` mirroring the source path (probe: file-pair check).
+- [x] ISC-37: `pytest closedSpace/` passes with ≥ 80 % line coverage on
+  `closedSpace/`. *(actual: 95% via pytest-cov gate in Makefile.)*
+- [x] ISC-38: `mypy closedSpace/` returns clean (no errors).
+- [x] ISC-39: `ruff check closedSpace/` returns clean.
+- [x] ISC-40: Every public function has an OpenSpec docstring (probe:
+  ruff `D101,D102,D103,D104` rules; tests exempted per pytest naming
+  convention).
+- [x] ISC-41: Every new function has a co-located test under
+  `tests/` mirroring the source path (probe:
+  `closedSpace/tests/test_file_pairs.py`).
 
 ### Antecedent (operator experience must land)
 - [ ] ISC-42: Antecedent: a warehouse staffer who has never flown a

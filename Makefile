@@ -14,7 +14,7 @@ install:
 	$(PIP) install -e ".[dev]"
 
 test:
-	$(PY) -m pytest
+	$(PY) -m pytest --cov --cov-fail-under=80
 
 lint:
 	$(PY) -m ruff check .

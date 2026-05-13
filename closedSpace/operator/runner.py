@@ -41,14 +41,17 @@ class AbortSignal:
         self._reason = ""
 
     def trigger(self, reason: str = "operator abort") -> None:
+        """Latch the abort flag and record the reason. Safe from any thread."""
         self._reason = reason
         self._set.set()
 
     def is_set(self) -> bool:
+        """True iff :meth:`trigger` has been called."""
         return self._set.is_set()
 
     @property
     def reason(self) -> str:
+        """The reason string passed to the most recent :meth:`trigger` call."""
         return self._reason
 
 
@@ -95,6 +98,7 @@ class MissionRunner:
         fc.subscribe_state(lambda _ev: builder.record_state_transition())
 
     def run(self) -> MissionRunResult:
+        """Drive every waypoint; return the finalized mission report."""
         self._publish_progress("mission.started", payload={
             "planned_capture_count": self._plan.capture_count,
             "planned_waypoints": len(self._plan.waypoints),

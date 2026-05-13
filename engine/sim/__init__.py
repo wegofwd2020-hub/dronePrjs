@@ -61,13 +61,16 @@ class SimWorld:
 
     @property
     def pose(self) -> Pose:
+        """The current simulated pose. Read by SLAM / Camera consumers."""
         return self._pose
 
     def set_pose(self, x: float, y: float, z: float, yaw_deg: float) -> Pose:
+        """Snap the simulated pose to the new values; stamp with ``now_ns``."""
         self._pose = Pose(x, y, z, yaw_deg, self._clock())
         return self._pose
 
     def now_ns(self) -> int:
+        """Current monotonic timestamp from the injected clock."""
         return self._clock()
 
 
@@ -88,11 +91,13 @@ class SimFlightController:
         self._subs: list[StateCallback] = []
 
     def arm(self) -> None:
+        """Transition to ``ARMED`` from ``DISARMED``. Idempotent on ARMED."""
         if self._state is ControllerState.ARMED:
             return
         self._transition(ControllerState.ARMED, reason="arm()")
 
     def disarm(self) -> None:
+        """Transition to ``DISARMED``. Refuses while ``AIRBORNE``."""
         if self._state is ControllerState.AIRBORNE:
             raise RuntimeError("cannot disarm while AIRBORNE — land first")
         if self._state is ControllerState.DISARMED:
@@ -100,6 +105,7 @@ class SimFlightController:
         self._transition(ControllerState.DISARMED, reason="disarm()")
 
     def takeoff(self, height_m: float) -> None:
+        """Lift to ``height_m`` and transition ``ARMED → AIRBORNE``."""
         if self._state is not ControllerState.ARMED:
             raise RuntimeError(
                 f"takeoff requires ARMED; current state is {self._state.value}"
@@ -109,6 +115,7 @@ class SimFlightController:
         self._transition(ControllerState.AIRBORNE, reason=f"takeoff({height_m})")
 
     def land(self) -> None:
+        """Descend to z=0 and transition ``AIRBORNE → LANDING → DISARMED``."""
         if self._state is not ControllerState.AIRBORNE:
             raise RuntimeError(
                 f"land requires AIRBORNE; current state is {self._state.value}"
@@ -119,6 +126,7 @@ class SimFlightController:
         self._transition(ControllerState.DISARMED, reason="land() complete")
 
     def goto(self, x: float, y: float, z: float, yaw_deg: float) -> None:
+        """Snap the simulated pose to the commanded waypoint. AIRBORNE only."""
         if self._state is not ControllerState.AIRBORNE:
             raise RuntimeError(
                 f"goto requires AIRBORNE; current state is {self._state.value}"
@@ -126,16 +134,19 @@ class SimFlightController:
         self._world.set_pose(x, y, z, yaw_deg)
 
     def hold(self) -> None:
-        # Snap-kinematic sim has nothing to integrate; hold is a no-op.
+        """No-op for the snap-kinematic sim; real platforms latch the pose."""
         return
 
     def get_state(self) -> ControllerState:
+        """Current controller state. Non-blocking."""
         return self._state
 
     def get_pose(self) -> Pose:
+        """Latest commanded pose. Non-blocking."""
         return self._world.pose
 
     def subscribe_state(self, cb: StateCallback) -> None:
+        """Register a callback fired on every state transition."""
         self._subs.append(cb)
 
     def force_safe_hover(self, reason: str) -> None:
@@ -178,17 +189,21 @@ class SimSLAM:
         self._confidence = 1.0
 
     def start(self) -> None:
+        """Mark SLAM as tracking. Subsequent ``get_pose`` calls succeed."""
         self._started = True
 
     def stop(self) -> None:
+        """Mark SLAM as halted. ``get_pose`` raises until ``start`` again."""
         self._started = False
 
     def get_pose(self) -> Pose:
+        """Return the world's current pose. Raises if SLAM has not started."""
         if not self._started:
             raise RuntimeError("SimSLAM.get_pose called before start()")
         return self._world.pose
 
     def confidence(self) -> float:
+        """Tracking confidence in ``[0, 1]``. Settable via :meth:`set_confidence`."""
         return self._confidence
 
     def set_confidence(self, value: float) -> None:
@@ -213,12 +228,15 @@ class SimCamera:
         self._capture_seq = itertools.count(1)
 
     def start(self) -> None:
+        """Open the simulated camera. Subsequent ``capture`` calls succeed."""
         self._started = True
 
     def stop(self) -> None:
+        """Close the simulated camera. ``capture`` raises until ``start`` again."""
         self._started = False
 
     def capture(self, pose: Pose) -> Frame:
+        """Synthesize one deterministic frame stamped with ``pose``."""
         if not self._started:
             raise RuntimeError("SimCamera.capture called before start()")
         pixels = _synthetic_frame(pose)

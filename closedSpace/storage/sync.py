@@ -57,6 +57,7 @@ class SyncResult:
 
     @property
     def all_succeeded(self) -> bool:
+        """True iff every artifact uploaded cleanly."""
         return not self.failed
 
 

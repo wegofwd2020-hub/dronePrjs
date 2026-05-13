@@ -66,12 +66,14 @@ class InMemoryTelemetryBus:
         self._lock = threading.Lock()
 
     def publish(self, topic: str, event: TelemetryEvent) -> None:
+        """Synchronously deliver ``event`` to every subscriber of ``topic``."""
         with self._lock:
             callbacks = list(self._subs.get(topic, ()))
         for cb in callbacks:
             cb(event)
 
     def subscribe(self, topic: str, callback: TelemetryCallback) -> None:
+        """Register ``callback`` to receive events published on ``topic``."""
         with self._lock:
             self._subs.setdefault(topic, []).append(callback)
 
@@ -91,6 +93,7 @@ class JSONLTelemetryLogger:
         self._lock = threading.Lock()
 
     def attach(self, bus: TelemetryBus, *topics: str) -> None:
+        """Subscribe this logger to every named topic on ``bus``."""
         for topic in topics:
             bus.subscribe(topic, self._on_event)
 
@@ -101,6 +104,7 @@ class JSONLTelemetryLogger:
             self._fh.flush()
 
     def close(self) -> None:
+        """Flush and close the underlying file. Idempotent."""
         with self._lock:
             if not self._fh.closed:
                 self._fh.close()

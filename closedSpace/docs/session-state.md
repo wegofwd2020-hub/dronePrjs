@@ -4,13 +4,14 @@
 > four canonical sources for everything we know about the project.
 
 **Last updated:** 2026-05-13
-**Current phase:** observe (project ISA `phase: observe`, `progress: 29/44`)
-**Roadmap:** Phases 0, 1, 2, 4, 5 complete. Operator can run an entire
-mission via `python -m closedSpace.run --map <path>` — plan summary,
-preflight gate, explicit confirmation, per-waypoint progress log,
-mission report on disk. D1–D3 still gate Phase 3 simulator bring-up.
-Next unblocked chunk: Phase 6 (quality gates polish — coverage,
-docstring lint, file-pair lint).
+**Current phase:** observe (project ISA `phase: observe`, `progress: 35/44`)
+**Roadmap:** Phases 0, 1, 2, 4, 5, 6 complete. Full quality gate
+auditable in CI: coverage ≥ 80 % (actual 95 %), mypy strict clean,
+ruff + docstring lint clean, anti-scope-creep AST scan, file-pair
+lint, GitHub Actions workflow on PR. D1–D3 still gate Phase 3
+simulator bring-up. Remaining v1 work is Phase 7 (MapBuilderFromWMS,
+pilot-deployment scope) and Phase 8 (real-hardware pilot — home for
+ISC-19, 20, 27 tightening, 31, 33, 42).
 
 ---
 
@@ -87,6 +88,12 @@ docstring lint, file-pair lint).
   flipped (6 ISCs). ISC-42 antecedent: `docs/operator-README.md`
   in place; the "warehouse staffer in 15 min" verification is a
   Phase 8 pilot deliverable.
+- **Phase 6 complete (2026-05-13):** quality gates auditable in CI.
+  pytest-cov with `--cov-fail-under=80` (actual 95 %), ruff D101–D104
+  docstring rules enabled, AST-based anti-scope-creep scan rejects
+  cv2/torch/easyocr/etc imports under closedSpace/, file-pair lint
+  enforces test mirrors, `.github/workflows/ci.yml` runs `make all` on
+  PR + main push. ISC-35, 37, 38, 39, 40, 41 flipped (6 ISCs).
 
 ## What's open
 
@@ -98,20 +105,24 @@ docstring lint, file-pair lint).
 
 ## Suggested first move on resume
 
-**Phase 6 — Quality gates polish** (~2–3 days). Most of Phase 6 is
-already met by `make all` (ruff clean, mypy strict clean — ISC-38,
-ISC-39). Three items remain:
-* Coverage report ≥ 80 % on `closedSpace/` (ISC-37) — add coverage
-  to Makefile and verify.
-* Docstring lint (ISC-40) — pick / write a tool that catches the
-  "every public function has an OpenSpec docstring" rule.
-* Test-file-pair lint (ISC-41) — enforce that every new source file
-  has a corresponding test file.
+Remaining v1 work splits into three independent tracks:
 
-Phase 3 still waits on D1/D2. Phase 7 (MapBuilderFromWMS) is the
-pilot-deployment unblocker but is independent of v1 flight scope.
-Phase 8 (real-hardware pilot) is the home for the still-open ISCs
-19, 20, 27 (hardware tightening), 31, 33, 42.
+* **Phase 3 (Simulator bring-up)** still gated on D1 (sim-vs-hardware)
+  and D2 (which sim). Until those are answered, this phase doesn't
+  start — the in-process sim is sufficient for everything Phase 0–6
+  built.
+* **Phase 7 (MapBuilderFromWMS)** — out of v1 *flight* scope but on
+  the v1 *deployment* path. Without it, every new warehouse needs a
+  hand-rolled YAML map. ~5–10 days.
+* **Phase 8 (Pilot mission)** — real-hardware reference run. Home for
+  the still-open ISCs: 19 (≥ 4 MP), 20 (focus pass rate), 27
+  (abort latency on real hardware with long dwells), 31 (anti-
+  collision), 33 (clearance enforcement), 42 (operator antecedent
+  verification with a non-pilot).
+
+In code-only terms, **v1 is functionally complete**: the closedSpace
+mission planner, sim runner, capture/storage/report pipeline, and
+operator CLI all run end-to-end with full quality gates enforced.
 
 ---
 

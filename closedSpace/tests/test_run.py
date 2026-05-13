@@ -18,7 +18,7 @@ from closedSpace.run import (
 )
 
 REFERENCE_MAP = (
-    Path(__file__).resolve().parents[1]
+    Path(__file__).resolve().parent
     / "fixtures"
     / "maps"
     / "reference_warehouse.yaml"

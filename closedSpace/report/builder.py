@@ -48,6 +48,7 @@ class ReportBuilder:
         self._state_transitions = 0
 
     def record(self, outcome: CaptureOutcome) -> None:
+        """Tally one capture outcome into the running totals."""
         if isinstance(outcome, CaptureRecorded):
             self._captured += 1
             return

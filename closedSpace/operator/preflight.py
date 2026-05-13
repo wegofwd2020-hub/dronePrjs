@@ -30,6 +30,8 @@ DEFAULT_MIN_BATTERY_PCT: float = 30.0
 
 
 class PreflightOutcome(Enum):
+    """Per-check verdict. ``WARN`` is non-blocking; ``FAIL`` refuses arm."""
+
     PASS = "pass"
     FAIL = "fail"
     WARN = "warn"  # non-blocking; surface to operator, allow arm
@@ -52,14 +54,17 @@ class PreflightResult:
 
     @property
     def can_arm(self) -> bool:
+        """True iff no check produced a ``FAIL`` outcome."""
         return not any(c.outcome is PreflightOutcome.FAIL for c in self.checks)
 
     @property
     def failures(self) -> tuple[PreflightCheck, ...]:
+        """The subset of checks whose outcome is ``FAIL``."""
         return tuple(c for c in self.checks if c.outcome is PreflightOutcome.FAIL)
 
     @property
     def warnings(self) -> tuple[PreflightCheck, ...]:
+        """The subset of checks whose outcome is ``WARN``."""
         return tuple(c for c in self.checks if c.outcome is PreflightOutcome.WARN)
 
 
@@ -90,6 +95,7 @@ class PreflightChecklist:
         self._allow_stale_map = allow_stale_map
 
     def run(self, m: Map) -> PreflightResult:
+        """Run every check in order and return the aggregate verdict."""
         return PreflightResult(
             checks=(
                 self._check_battery(),

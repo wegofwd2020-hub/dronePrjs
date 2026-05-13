@@ -58,6 +58,7 @@ class LocalSink:
 
     @property
     def root(self) -> Path:
+        """Absolute path to the per-mission directory this sink writes under."""
         return self._root
 
     def write(
