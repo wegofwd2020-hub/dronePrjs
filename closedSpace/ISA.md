@@ -4,7 +4,7 @@ project: closedSpace
 effort: advanced
 effort_source: classifier
 phase: observe
-progress: 11/44
+progress: 14/44
 mode: interactive
 started: 2026-05-03T00:00:00Z
 updated: 2026-05-13T00:00:00Z
@@ -155,7 +155,7 @@ flight (real hardware or high-fidelity simulator).
   do not enter the zone (probe: spatial intersection check).
 
 ### Localization & control
-- [ ] ISC-11: `closedSpace` imports only from `engine.localization`
+- [x] ISC-11: `closedSpace` imports only from `engine.localization`
   (probe: `grep -r "GPSProvider" closedSpace/` returns zero matches).
 - [ ] ISC-12: Mid-mission loss of SLAM tracking transitions the drone
   to `SAFE_HOVER` state within 200 ms (logged with state-transition
@@ -211,7 +211,7 @@ flight (real hardware or high-fidelity simulator).
   ground-station log file in human-readable form.
 
 ### Anti-criteria
-- [ ] ISC-30: Anti: GPS — no module under `closedSpace/` or `engine/`
+- [x] ISC-30: Anti: GPS — no module under `closedSpace/` or `engine/`
   imports `engine.localization.GPSProvider` (probe: `grep -r
   "GPSProvider"` zero matches).
 - [ ] ISC-31: Anti: collision — zero log entries with severity
@@ -226,9 +226,9 @@ flight (real hardware or high-fidelity simulator).
 - [ ] ISC-35: Anti: scope creep — `closedSpace/` does not import
   any inference / OCR / CV-recognition library (probe: dependency
   graph scan).
-- [ ] ISC-36: Anti: engine bleed — domain-specific logic does not
-  appear under `engine/` (probe: review checklist + grep for
-  `closedSpace`-domain symbols inside `engine/`).
+- [x] ISC-36: Anti: engine bleed — domain-specific logic does not
+  appear under `engine/` (probe: AST-based import scan in
+  `engine/tests/test_no_domain_bleed.py`).
 
 ### Cross-cutting quality gates
 - [ ] ISC-37: `pytest closedSpace/` passes with ≥ 80 % line coverage on

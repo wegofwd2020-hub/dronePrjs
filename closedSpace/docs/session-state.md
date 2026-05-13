@@ -4,9 +4,10 @@
 > four canonical sources for everything we know about the project.
 
 **Last updated:** 2026-05-13
-**Current phase:** observe (project ISA `phase: observe`, `progress: 11/44`)
-**Roadmap:** Phase 0 + Phase 1 complete — Phase 2 (engine Protocols) is
-the next chunk. D1–D3 still gate Phase 3 simulator bring-up.
+**Current phase:** observe (project ISA `phase: observe`, `progress: 14/44`)
+**Roadmap:** Phases 0, 1, 2 complete. closedSpace runs end-to-end against
+the in-process sim. D1–D3 still gate Phase 3 simulator bring-up. Next
+unblocked chunk: Phase 4 (Capture + Storage + Report).
 
 ---
 
@@ -48,6 +49,16 @@ the next chunk. D1–D3 still gate Phase 3 simulator bring-up.
   resolved in favor of §10.2.2 "minimum transit" intent: racks visited
   in entry-direction physical order (reversed on alternate aisles).
   Documented in `closedSpace/mission/plan.py` module docstring.
+- **Phase 2 complete (2026-05-13):** `engine/` Protocols filled in.
+  `SLAMProvider`/`GPSProvider` (engine.localization), `FlightController`
+  + state machine (engine.flight_control), pub/sub bus + JSONL logger
+  (engine.telemetry), `Camera` + stdlib Laplacian focus score
+  (engine.sensors), `SimWorld`/`SimSLAM`/`SimFlightController`/`SimCamera`
+  in-process stubs (engine.sim). ISC-11, ISC-30, ISC-36 flipped.
+  Anti-bleed test uses AST import scan, not substring grep.
+  Integration smoke at `closedSpace/tests/mission/test_sim_integration.py`
+  exercises the Phase 2 exit criterion: plan → sim end-to-end, final
+  state DISARMED, 64 captures, lifecycle transitions logged to JSONL.
 
 ## What's open
 
@@ -59,16 +70,12 @@ the next chunk. D1–D3 still gate Phase 3 simulator bring-up.
 
 ## Suggested first move on resume
 
-**Phase 2 — Engine contracts** (~2–3 days). Define the Protocol surface
-in `engine/` that every flight-platform implementation must conform to:
-`SLAMProvider`, `FlightController`, `TelemetryBus`, `Camera`, plus an
-in-process kinematic stub. Tasks NS-2.1 through NS-2.6 in
-`docs/next-steps.md`. Anti-scope guard test (NS-2.6) satisfies ISC-36
-("engine doesn't import any closedSpace symbol"). No decision gates.
-
-After Phase 2 the closedSpace mission planner can run end-to-end
-against the in-process sim, unlocking the Phase 4 capture/storage/report
-work.
+**Phase 4 — Capture + Storage + Report** (~4–6 days). Phase 3 is
+decision-gated (D1/D2 not yet answered); Phase 4 isn't. Build the
+real mission runner that wires the plan to the sim Protocols, writes
+captured frames + metadata sidecars to a per-mission directory, and
+emits a `mission_report.json`. Satisfies ISC-16 through ISC-25 plus
+the anti-data-loss ISC-32.
 
 ---
 
