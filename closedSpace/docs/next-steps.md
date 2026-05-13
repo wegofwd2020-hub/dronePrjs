@@ -14,13 +14,13 @@
 
 | Phase | Theme | Effort (days) | Blocks downstream | Status |
 |---|---|---|---|---|
-| 0 | Foundations: env, repo, engine skeleton | 1–2 | All Python work | not-started |
-| 1 | MissionPlanner | 3–5 | UC-1 spine, simulator wiring | not-started |
-| 2 | Engine contracts (Protocols + stubs) | 2–3 | Simulator + flight stack | not-started |
-| 3 | Simulator bring-up | 5–10 | All flight verification | **decision needed** |
-| 4 | Capture + Storage + Report | 4–6 | UC-1 reaches end-to-end | not-started |
-| 5 | OperatorConsole + preflight | 3–4 | UC-1 user-facing | not-started |
-| 6 | Quality gates + anti-scope guards | 2–3 | Production readiness | partial |
+| 0 | Foundations: env, repo, engine skeleton | 1–2 | All Python work | done |
+| 1 | MissionPlanner | 3–5 | UC-1 spine, simulator wiring | done |
+| 2 | Engine contracts (Protocols + stubs) | 2–3 | Simulator + flight stack | done |
+| 3 | Simulator bring-up | 5–10 | All flight verification | in-progress (D1/D2 answered 2026-05-13) |
+| 4 | Capture + Storage + Report | 4–6 | UC-1 reaches end-to-end | done |
+| 5 | OperatorConsole + preflight | 3–4 | UC-1 user-facing | done |
+| 6 | Quality gates + anti-scope guards | 2–3 | Production readiness | done |
 | 7 | MapBuilderFromWMS | 5–10 | Pilot deployment | sketched |
 | 8 | Pilot mission (real warehouse) | 5+ | v1 done | not-started |
 

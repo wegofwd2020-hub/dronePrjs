@@ -595,6 +595,58 @@ flight (real hardware or high-fidelity simulator).
   questions deferred until purchase decision: build-vs-service,
   platform-agnostic-vs-single, and per-vendor SDK terms (Skydio,
   DJI, regulatory).
+- 2026-05-13 DECIDE: D1 — sim leads, hardware follows. v1 verifies on
+  simulator with the `engine.flight_control.FlightController`,
+  `engine.localization.SLAMProvider`, `engine.sensors.Camera`, and
+  `engine.telemetry.TelemetryBus` Protocols as the single seam. Hardware
+  sessions become a manual gate during Phase 8 bring-up, not a CI
+  dependency. Why: unblocks automated regression testing now, defers
+  permits/crash cost/space logistics until the system is provably
+  correct in sim, and the Protocol seam means hardware-tier code drops
+  in without touching closedSpace.
+- 2026-05-13 DECIDE: D2 — two-tier simulator. Tier 1 is the in-process
+  kinematic sim already shipped at `engine/sim/__init__.py` (NS-2.5);
+  it drives unit + smoke tests and stays the default for CI. Tier 2 is
+  Gazebo + PX4 SITL, added in Phase 3 for integration tests that need
+  realistic sensor models (RGB-D for capture, IMU + visual features for
+  SLAM-divergence probes, MAVLink for the flight stack). Why: tier 1
+  pays for itself in test speed (already does); tier 2 is industry-
+  standard, MAVLink-native, and rich enough to validate ISC-12 (SLAM
+  loss recovery), ISC-13 (latency), and ISC-14 (clearance) against
+  realistic sensor returns. Heavy install — Phase 3 will containerize
+  it. Cosys-AirSim and Isaac Sim are explicitly deferred; they would
+  duplicate tier-2 work without adding fidelity Gazebo lacks for the
+  v1 use cases.
+- 2026-05-13 OBSERVE: D3 (flight stack — PX4/ArduPilot/proprietary)
+  remains deferred until hardware bring-up (Phase 8). D2's choice of
+  PX4 SITL biases Phase 3 toward PX4 but does not bind hardware —
+  `engine.flight_control.FlightController` is the abstraction.
+- 2026-05-13 BUILD: NS-3.2 reference world generator. `closedSpace/sim/
+  world_builder.py` is a pure function from a parsed `Map` to an SDF
+  1.10 world string; the generated `engine/sim_gazebo/worlds/
+  reference_warehouse.sdf` is checked-in and refreshed via
+  `make sim-world`. Geometry decisions worth recording: racks are
+  modeled as a single static box per rack (front face at
+  `aisle.width_m / 2`, depth 0.4 m, height max-level + 0.3 m) rather
+  than per-shelf — shelf-level detail isn't needed for flight
+  verification and one box per rack keeps the scene cheap to render.
+  V1 only supports axis-aligned rectangular coverage polygons; the
+  builder raises rather than producing a degenerate world. Lives in
+  `closedSpace/` (not `engine/`) because the warehouse map IS a
+  closedSpace concept; engine code still does not import closedSpace
+  (ISC-36 preserved).
+- 2026-05-13 BUILD: NS-3.1 scaffold landed. `engine/sim_gazebo/` is
+  a peer of `engine/sim/` (symmetric tier-1 / tier-2 layout per the
+  D2 decision). `engine/sim_gazebo/docker/` ships a Dockerfile pinned
+  to PX4 v1.15.4 + Gazebo Harmonic + Ubuntu 22.04; `docker-compose.yml`
+  uses Linux host networking for MAVLink UDP discovery; root Makefile
+  gains `sim-build` / `sim-up` / `sim-down` / `sim-shell` / `sim-logs`
+  targets, deliberately NOT wired into `make all` (image is several GB,
+  first build ~15–30 min). `engine/tests/test_sim_gazebo.py` pins the
+  scaffold shape (5 checks). Heavy `docker build` deferred to user-run
+  task NS-3.1b — keeps CI fast and lets the container churn happen on
+  the operator's clock. 133 tests pass, mypy + ruff clean, coverage
+  95.3% — no regression on Phases 0–6.
 
 ## Changelog
 

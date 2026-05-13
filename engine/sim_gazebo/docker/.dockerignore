@@ -1,0 +1,5 @@
+# Build context is intentionally tiny — only the Dockerfile itself.
+# Anything else copied in would invalidate the build cache for the slow
+# PX4 + Gazebo install layers.
+*
+!Dockerfile

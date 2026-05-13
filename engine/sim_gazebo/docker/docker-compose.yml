@@ -1,0 +1,33 @@
+# Tier-2 sim service. From repo root:
+#   make sim-build   # one-time (~15-30 min, several GB)
+#   make sim-up      # start sim in background
+#   make sim-down    # stop sim
+#   make sim-shell   # exec a bash shell into the running container
+#
+# Network: host mode is the only reliable path for MAVLink UDP discovery
+# on Linux. Docker Desktop on macOS/Windows requires explicit port
+# mappings instead (uncomment the `ports:` block and remove network_mode).
+
+services:
+  sim:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: droneprjs/sim_gazebo:px4-v1.15.4-gz-harmonic
+    container_name: droneprjs-sim
+    network_mode: host
+    environment:
+      # X11 forwarding for the Gazebo GUI (headless runs ignore it).
+      DISPLAY: "${DISPLAY:-:0}"
+      # Headless: HEADLESS=1 in env skips the gz GUI window.
+      HEADLESS: "${HEADLESS:-0}"
+    volumes:
+      # World files generated from closedSpace map fixtures (NS-3.2).
+      - ../worlds:/opt/PX4-Autopilot/Tools/simulation/gz/worlds/closedSpace:ro
+      # X11 socket for GUI mode.
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+    # ports:
+    #   - "14540:14540/udp"
+    #   - "14550:14550/udp"
+    #   - "14570:14570/udp"
+    restart: "no"
