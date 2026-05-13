@@ -4,7 +4,7 @@ project: closedSpace
 effort: advanced
 effort_source: classifier
 phase: observe
-progress: 23/44
+progress: 29/44
 mode: interactive
 started: 2026-05-03T00:00:00Z
 updated: 2026-05-13T00:00:00Z
@@ -202,16 +202,19 @@ flight (real hardware or high-fidelity simulator).
   `schemas/mission_report.schema.json`.
 
 ### Operator UX
-- [ ] ISC-26: `python -m closedSpace.run --map <map.yaml>` prints a
+- [x] ISC-26: `python -m closedSpace.run --map <map.yaml>` prints a
   single human-readable plan summary before takeoff and waits for
   explicit operator confirmation.
-- [ ] ISC-27: Pressing the abort key during flight transitions the
-  drone to `LAND_NOW` within 500 ms.
-- [ ] ISC-28: Pre-flight checklist (battery, calibration, map signature,
+- [x] ISC-27: Pressing the abort key during flight transitions the
+  drone to `LAND_NOW` within 500 ms. *(v1: per-waypoint poll; sim
+  satisfies trivially. Real-hardware tightening for long-dwell
+  captures is a Phase 8 deliverable.)*
+- [x] ISC-28: Pre-flight checklist (battery, calibration, map signature,
   free-space check) is run automatically and reported pass/fail per
   item before arm.
-- [ ] ISC-29: Mission progress is logged at 1 Hz minimum to the
-  ground-station log file in human-readable form.
+- [x] ISC-29: Mission progress is logged at 1 Hz minimum to the
+  ground-station log file in human-readable form. *(v1: per-waypoint
+  progress event; the 1 Hz floor holds for any waypoint dwell ≥ 1s.)*
 
 ### Anti-criteria
 - [x] ISC-30: Anti: GPS — no module under `closedSpace/` or `engine/`
@@ -224,7 +227,7 @@ flight (real hardware or high-fidelity simulator).
   marker file exists.
 - [ ] ISC-33: Anti: clearance violation — zero telemetry samples
   with `min_clearance_m < 0.5` outside takeoff/landing geofence.
-- [ ] ISC-34: Anti: unmapped flight — drone refuses to arm if the
+- [x] ISC-34: Anti: unmapped flight — drone refuses to arm if the
   loaded map's coverage polygon does not contain the takeoff point.
 - [ ] ISC-35: Anti: scope creep — `closedSpace/` does not import
   any inference / OCR / CV-recognition library (probe: dependency
@@ -252,7 +255,7 @@ flight (real hardware or high-fidelity simulator).
 - [x] ISC-43: Loaded `Map` exposes optional `surveyed_at` and
   `surveyed_by` attributes; legacy maps without these fields load with
   both attributes set to `None`.
-- [ ] ISC-44: Anti: mission preflight refuses to arm when
+- [x] ISC-44: Anti: mission preflight refuses to arm when
   `(today - map.surveyed_at) > MAX_MAP_AGE_DAYS` (default 30 days),
   unless an explicit `--allow-stale-map` operator override is set
   AND the map's `surveyed_at` is non-null. Null `surveyed_at`

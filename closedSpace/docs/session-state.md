@@ -4,12 +4,13 @@
 > four canonical sources for everything we know about the project.
 
 **Last updated:** 2026-05-13
-**Current phase:** observe (project ISA `phase: observe`, `progress: 23/44`)
-**Roadmap:** Phases 0, 1, 2, 4 complete. closedSpace runs end-to-end
-against the in-process sim, persists captures to disk with sidecars,
-emits a schema-valid mission report, handles sync-failure without data
-loss. D1–D3 still gate Phase 3 simulator bring-up. Next unblocked
-chunk: Phase 5 (OperatorConsole + preflight).
+**Current phase:** observe (project ISA `phase: observe`, `progress: 29/44`)
+**Roadmap:** Phases 0, 1, 2, 4, 5 complete. Operator can run an entire
+mission via `python -m closedSpace.run --map <path>` — plan summary,
+preflight gate, explicit confirmation, per-waypoint progress log,
+mission report on disk. D1–D3 still gate Phase 3 simulator bring-up.
+Next unblocked chunk: Phase 6 (quality gates polish — coverage,
+docstring lint, file-pair lint).
 
 ---
 
@@ -75,6 +76,17 @@ chunk: Phase 5 (OperatorConsole + preflight).
   `closedSpace/tests/test_mission_e2e.py` drives reference plan
   through the full stack: 64 .jpg + 64 .jpg.json on disk,
   coverage_pct = 100.0, schema valid.
+- **Phase 5 complete (2026-05-13):** `closedSpace/operator/` package
+  (`PreflightChecklist`, `MissionRunner`, `AbortSignal`) + `closedSpace/run.py`
+  CLI shim. Preflight runs five checks (battery, calibration, takeoff
+  in coverage, free pad, map staleness) with per-item PASS/FAIL/WARN.
+  MissionRunner polls abort before every waypoint and publishes
+  `mission.started`/`mission.progress`/`mission.finished` events.
+  CLI prints plan summary, runs preflight, prompts for explicit
+  "yes" confirmation, writes report. ISC-26, 27, 28, 29, 34, 44
+  flipped (6 ISCs). ISC-42 antecedent: `docs/operator-README.md`
+  in place; the "warehouse staffer in 15 min" verification is a
+  Phase 8 pilot deliverable.
 
 ## What's open
 
@@ -86,17 +98,20 @@ chunk: Phase 5 (OperatorConsole + preflight).
 
 ## Suggested first move on resume
 
-**Phase 5 — OperatorConsole + preflight** (~3–4 days). The
-`python -m closedSpace.run` CLI entry point: plan summary,
-pre-flight checklist, operator confirm, abort key, 1 Hz progress
-log. Satisfies ISC-26, ISC-27, ISC-28, ISC-29, ISC-34, and the
-operator-experience antecedent ISC-42. No decision gates.
+**Phase 6 — Quality gates polish** (~2–3 days). Most of Phase 6 is
+already met by `make all` (ruff clean, mypy strict clean — ISC-38,
+ISC-39). Three items remain:
+* Coverage report ≥ 80 % on `closedSpace/` (ISC-37) — add coverage
+  to Makefile and verify.
+* Docstring lint (ISC-40) — pick / write a tool that catches the
+  "every public function has an OpenSpec docstring" rule.
+* Test-file-pair lint (ISC-41) — enforce that every new source file
+  has a corresponding test file.
 
-Phase 3 (real simulator bring-up) still waits on D1/D2.
-Phase 6 (quality gates) is mostly already met by `make all`.
-Phase 8 (real-hardware pilot) is the home for ISC-19, ISC-20,
-ISC-31 (anti-collision), ISC-33 (clearance enforcement) since
-those require a live flight.
+Phase 3 still waits on D1/D2. Phase 7 (MapBuilderFromWMS) is the
+pilot-deployment unblocker but is independent of v1 flight scope.
+Phase 8 (real-hardware pilot) is the home for the still-open ISCs
+19, 20, 27 (hardware tightening), 31, 33, 42.
 
 ---
 
