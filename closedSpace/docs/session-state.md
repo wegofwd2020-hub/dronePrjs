@@ -4,10 +4,12 @@
 > four canonical sources for everything we know about the project.
 
 **Last updated:** 2026-05-13
-**Current phase:** observe (project ISA `phase: observe`, `progress: 14/44`)
-**Roadmap:** Phases 0, 1, 2 complete. closedSpace runs end-to-end against
-the in-process sim. D1–D3 still gate Phase 3 simulator bring-up. Next
-unblocked chunk: Phase 4 (Capture + Storage + Report).
+**Current phase:** observe (project ISA `phase: observe`, `progress: 23/44`)
+**Roadmap:** Phases 0, 1, 2, 4 complete. closedSpace runs end-to-end
+against the in-process sim, persists captures to disk with sidecars,
+emits a schema-valid mission report, handles sync-failure without data
+loss. D1–D3 still gate Phase 3 simulator bring-up. Next unblocked
+chunk: Phase 5 (OperatorConsole + preflight).
 
 ---
 
@@ -59,6 +61,20 @@ unblocked chunk: Phase 4 (Capture + Storage + Report).
   Integration smoke at `closedSpace/tests/mission/test_sim_integration.py`
   exercises the Phase 2 exit criterion: plan → sim end-to-end, final
   state DISARMED, 64 captures, lifecycle transitions logged to JSONL.
+- **Phase 4 complete (2026-05-13):** `closedSpace/capture/`,
+  `closedSpace/storage/`, `closedSpace/report/` + schema. CaptureSink
+  runs resolution + focus gates, builds §ISC-17 sidecars, §ISC-18
+  filename pattern. LocalSink does fsync + atomic-rename so each
+  capture is durable before the next waypoint. RemoteSink Protocol +
+  `sync_to_remote` retains local data on failure and writes
+  `.sync-pending` markers. ReportBuilder accumulates outcomes, emits
+  schema-valid `mission_report.json` with exact coverage arithmetic.
+  ISC-16, 17, 18, 21, 22, 23, 24, 25, 32 flipped (9 ISCs). ISC-19 /
+  ISC-20 stay open — gate logic implemented and tested but real-
+  hardware threshold verification is Phase 8. End-to-end test
+  `closedSpace/tests/test_mission_e2e.py` drives reference plan
+  through the full stack: 64 .jpg + 64 .jpg.json on disk,
+  coverage_pct = 100.0, schema valid.
 
 ## What's open
 
@@ -70,12 +86,17 @@ unblocked chunk: Phase 4 (Capture + Storage + Report).
 
 ## Suggested first move on resume
 
-**Phase 4 — Capture + Storage + Report** (~4–6 days). Phase 3 is
-decision-gated (D1/D2 not yet answered); Phase 4 isn't. Build the
-real mission runner that wires the plan to the sim Protocols, writes
-captured frames + metadata sidecars to a per-mission directory, and
-emits a `mission_report.json`. Satisfies ISC-16 through ISC-25 plus
-the anti-data-loss ISC-32.
+**Phase 5 — OperatorConsole + preflight** (~3–4 days). The
+`python -m closedSpace.run` CLI entry point: plan summary,
+pre-flight checklist, operator confirm, abort key, 1 Hz progress
+log. Satisfies ISC-26, ISC-27, ISC-28, ISC-29, ISC-34, and the
+operator-experience antecedent ISC-42. No decision gates.
+
+Phase 3 (real simulator bring-up) still waits on D1/D2.
+Phase 6 (quality gates) is mostly already met by `make all`.
+Phase 8 (real-hardware pilot) is the home for ISC-19, ISC-20,
+ISC-31 (anti-collision), ISC-33 (clearance enforcement) since
+those require a live flight.
 
 ---
 

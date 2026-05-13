@@ -58,6 +58,12 @@ class MissionConfig:
     max_mission_duration_s: float = 900.0
     nominal_speed_mps: float = 1.0
     capture_dwell_s: float = 3.0
+    # Per §10.3: a 4 MP floor on captured-image resolution and an
+    # empirically-set Laplacian-variance floor on focus. Defaults here
+    # are the spec values; sim tests override min_focus_score down to
+    # something the synthetic 16×16 frames can clear.
+    min_capture_resolution_px: int = 4_000_000
+    min_focus_score: float = 100.0
 
 
 @dataclass(frozen=True, slots=True)

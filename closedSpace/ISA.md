@@ -4,7 +4,7 @@ project: closedSpace
 effort: advanced
 effort_source: classifier
 phase: observe
-progress: 14/44
+progress: 23/44
 mode: interactive
 started: 2026-05-03T00:00:00Z
 updated: 2026-05-13T00:00:00Z
@@ -169,33 +169,36 @@ flight (real hardware or high-fidelity simulator).
   return-to-home + land sequence (synthetic test harness probe).
 
 ### Capture
-- [ ] ISC-16: At each waypoint, the drone captures exactly one image
+- [x] ISC-16: At each waypoint, the drone captures exactly one image
   before moving to the next (probe: images count == waypoints count
   on a successful reference run).
-- [ ] ISC-17: Each captured image file has a sidecar JSON metadata
+- [x] ISC-17: Each captured image file has a sidecar JSON metadata
   record containing `aisle_id, rack_id, level_index,
   pose {x,y,z,yaw}, timestamp_utc, mission_id, image_uri`.
-- [ ] ISC-18: Image filename pattern is
+- [x] ISC-18: Image filename pattern is
   `{warehouse_id}/{aisle_id}/{rack_id}/{level_index}/{timestamp}.jpg`.
 - [ ] ISC-19: Captured images have resolution ≥
   `MIN_CAPTURE_RESOLUTION` (default 4 MP) — probe: `identify` /
-  PIL size check.
+  PIL size check. *(Gate logic implemented + unit-tested; real-
+  hardware verification deferred to Phase 8 pilot mission.)*
 - [ ] ISC-20: Focus-quality score (Laplacian variance) ≥
   `MIN_FOCUS_SCORE` for ≥ 95 % of captures on the reference run.
+  *(Gate logic implemented + unit-tested; real-hardware threshold
+  calibration deferred to Phase 8 pilot mission.)*
 
 ### Storage & reporting
-- [ ] ISC-21: All captures land on local persistent storage before
+- [x] ISC-21: All captures land on local persistent storage before
   the next waypoint is attempted (probe: filesystem listing during
   paused mission).
-- [ ] ISC-22: Post-flight sync uploads every local capture to the
+- [x] ISC-22: Post-flight sync uploads every local capture to the
   configured backend; sync failure does NOT delete local copies.
-- [ ] ISC-23: Mission report is emitted as a single
+- [x] ISC-23: Mission report is emitted as a single
   `mission_report.json` containing `mission_id, started_utc,
   finished_utc, planned_waypoints, captured_waypoints, missed_waypoints
   [{waypoint_id, reason}], coverage_pct, telemetry_summary`.
-- [ ] ISC-24: `coverage_pct` matches `captured / planned * 100`
+- [x] ISC-24: `coverage_pct` matches `captured / planned * 100`
   exactly (probe: arithmetic check on a fixture report).
-- [ ] ISC-25: Mission report validates against
+- [x] ISC-25: Mission report validates against
   `schemas/mission_report.schema.json`.
 
 ### Operator UX
@@ -216,7 +219,7 @@ flight (real hardware or high-fidelity simulator).
   "GPSProvider"` zero matches).
 - [ ] ISC-31: Anti: collision — zero log entries with severity
   `COLLISION` after a reference mission run.
-- [ ] ISC-32: Anti: silent data loss — under simulated network
+- [x] ISC-32: Anti: silent data loss — under simulated network
   failure during sync, local images are retained and a sync-pending
   marker file exists.
 - [ ] ISC-33: Anti: clearance violation — zero telemetry samples
