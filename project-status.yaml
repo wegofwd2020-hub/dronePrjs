@@ -1,0 +1,15 @@
+# starter manifest — owners: refine feature list + statuses
+project: dronePrjs
+stage: passion
+owners: [siva]
+features:
+  - name: Shared engine (flight control, telemetry, localization, sensors)
+    status: in-progress
+  - name: closedSpace — indoor warehouse inventory simulation
+    status: in-progress
+  - name: openSpace — outdoor long-range domain
+    status: pending
+  - name: World generator scaffold (Phase 3)
+    status: in-progress
+  - name: Gazebo simulation integration
+    status: pending
