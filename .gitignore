@@ -27,3 +27,12 @@ dist/
 .idea/
 *.swp
 .DS_Store
+
+# AI tool configs (stray, not part of project)
+opencode.jsonc
+opencode.jasonc
+.cursor/
+.windsurf/
+.clinerules/
+.opencode/
+.github/copilot-instructions.md
