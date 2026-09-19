@@ -80,6 +80,15 @@ class FlightController(Protocol):
         """AIRBORNE → LANDING → DISARMED at the current XY."""
         ...
 
+    def request_safe_hover(self, reason: str) -> None:
+        """Drop to ``SAFE_HOVER``, e.g. on SLAM/link loss (ISC-12).
+
+        Idempotent while already ``SAFE_HOVER`` — no second event fires.
+        Mid-mission gating (only transition from ``AIRBORNE``) is the
+        caller's job: the SLAM watchdog checks state before invoking.
+        """
+        ...
+
     def goto(self, x: float, y: float, z: float, yaw_deg: float) -> None:
         """Command a waypoint; returns when the airframe is within
         the platform's per-axis arrival tolerance.

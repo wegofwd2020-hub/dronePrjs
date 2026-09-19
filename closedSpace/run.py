@@ -21,6 +21,7 @@ from pathlib import Path
 from typing import Callable, TextIO
 
 from closedSpace.capture import CaptureSink
+from closedSpace.control import SlamWatchdog
 from closedSpace.map import Map, load
 from closedSpace.mission import MissionConfig, MissionPlan, plan
 from closedSpace.operator import (
@@ -204,6 +205,9 @@ def _run_mission(
         runner = MissionRunner(
             plan=p, fc=fc, cam=cam, sink=sink, builder=builder,
             bus=bus, abort_signal=abort,
+            # ISC-12: SLAM loss → SAFE_HOVER watchdog, on the sim's clock
+            # so StateChange timestamps and loss detection stay coherent.
+            watchdog=SlamWatchdog(slam=slam, fc=fc, clock=world.now_ns),
         )
         result = runner.run()
 

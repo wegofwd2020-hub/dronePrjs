@@ -22,6 +22,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 
 from closedSpace.capture import CaptureSink
+from closedSpace.control import SlamWatchdog
 from closedSpace.mission import MissionPlan, Waypoint
 from closedSpace.report import ReportBuilder
 from engine.flight_control import ControllerState
@@ -83,6 +84,7 @@ class MissionRunner:
         builder: ReportBuilder,
         bus: TelemetryBus | None = None,
         abort_signal: AbortSignal | None = None,
+        watchdog: SlamWatchdog | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> None:
         self._plan = plan
@@ -92,6 +94,7 @@ class MissionRunner:
         self._builder = builder
         self._bus = bus
         self._abort = abort_signal or AbortSignal()
+        self._watchdog = watchdog
         self._clock = clock or (lambda: datetime.now(timezone.utc))
         # Hook the controller's state stream into the report's
         # telemetry-summary counter without forcing every test to do it.
@@ -105,9 +108,19 @@ class MissionRunner:
         })
 
         aborted = False
+        abort_reason = ""
         for i, wp in enumerate(self._plan.waypoints):
+            # ISC-12: watchdog is the highest-priority check — SLAM loss
+            # preempts waypoint commands (and even an operator abort) so
+            # the drone parks in SAFE_HOVER before anything else runs.
+            if self._watchdog is not None and self._watchdog.poll():
+                aborted = True
+                abort_reason = self._watchdog.last_reason
+                self._handle_abort()
+                break
             if self._abort.is_set():
                 aborted = True
+                abort_reason = self._abort.reason
                 self._handle_abort()
                 break
             self._execute(wp, takeoff_height_m=self._plan.waypoints[0].z)
@@ -125,7 +138,7 @@ class MissionRunner:
         return MissionRunResult(
             report=report,
             aborted=aborted,
-            abort_reason=self._abort.reason if aborted else "",
+            abort_reason=abort_reason,
         )
 
     # -----------------------------------------------------------------
@@ -144,9 +157,10 @@ class MissionRunner:
             self._builder.record(self._sink.consume(wp, frame))
 
     def _handle_abort(self) -> None:
-        """Land immediately if currently airborne (ISC-27 LAND_NOW)."""
+        """Convince the drone to the ground: land if airborne or hovering,
+        disarm if merely armed (ISC-27 LAND_NOW)."""
         state = self._fc.get_state()
-        if state is ControllerState.AIRBORNE:
+        if state is ControllerState.AIRBORNE or state is ControllerState.SAFE_HOVER:
             self._fc.land()
         elif state is ControllerState.ARMED:
             self._fc.disarm()

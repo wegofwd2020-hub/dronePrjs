@@ -19,3 +19,15 @@ DRONE_ENVELOPE_M: float = 0.4
 #: Bumping requires a coordinated change across loader, validator, and
 #: any persisted maps.
 SUPPORTED_MAP_VERSIONS: frozenset[str] = frozenset({"1.0"})
+
+#: SLAM tracking confidence below this → drop to ``SAFE_HOVER`` (ISC-12).
+#: Strict `<`: exactly at threshold still counts as tracking.
+SLAM_CONFIDENCE_THRESHOLD: float = 0.5
+
+#: Sleep between watchdog polls of SLAM confidence (s). Must stay well
+#: under :data:`SAFE_HOVER_MAX_LATENCY_S` so a loss is caught in budget.
+SLAM_POLL_INTERVAL_S: float = 0.02
+
+#: Worst-case budget from first SLAM-loss observation to ``SAFE_HOVER``
+#: entry (s). ISC-12 mandates ≤ 200 ms; poll cadence must keep slack.
+SAFE_HOVER_MAX_LATENCY_S: float = 0.2
