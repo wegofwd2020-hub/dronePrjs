@@ -33,6 +33,7 @@ from engine.flight_control import (
     StateCallback,
     StateChange,
 )
+from engine.link import LinkMonitor
 from engine.localization import SLAMProvider
 from engine.sensors import Camera, Frame, laplacian_focus_score
 from engine.telemetry import TelemetryBus
@@ -220,6 +221,33 @@ class SimSLAM:
         self._confidence = value
 
 
+class SimLinkMonitor:
+    """In-process :class:`LinkMonitor` — records ground-station keepalives.
+
+    Starts alive (first heartbeat stamped at construction). ``silence()``
+    is the ISC-15 test hook: it stops recording heartbeats so the link's
+    age grows monotonically, simulating a ground-station drop.
+    """
+
+    def __init__(self, clock: Callable[[], int]) -> None:
+        self._clock = clock
+        self._last_ns: int = clock()  # starts alive
+        self._silenced: bool = False
+
+    def heartbeat(self) -> None:
+        """Record a keepalive (no-op if silenced)."""
+        if not self._silenced:
+            self._last_ns = self._clock()
+
+    def last_heartbeat_ns(self) -> int:
+        """Monotonic ns of the most recent heartbeat (0 if never received)."""
+        return self._last_ns
+
+    def silence(self) -> None:
+        """Test hook: stop recording heartbeats — simulates link drop."""
+        self._silenced = True
+
+
 class SimCamera:
     """In-process :class:`Camera`.
 
@@ -276,13 +304,14 @@ def _synthetic_frame(pose: Pose) -> list[int]:
 # Conformance: assert structural subtyping at import time so test discovery
 # fails loudly if a Protocol method gets renamed.
 _: tuple[
-    type[SLAMProvider], type[FlightController], type[Camera]
-] = (SimSLAM, SimFlightController, SimCamera)
+    type[SLAMProvider], type[FlightController], type[Camera], type[LinkMonitor]
+] = (SimSLAM, SimFlightController, SimCamera, SimLinkMonitor)
 
 
 __all__ = [
     "SimCamera",
     "SimFlightController",
+    "SimLinkMonitor",
     "SimSLAM",
     "SimWorld",
 ]

@@ -7,6 +7,7 @@ Sub-packages:
 
 * :mod:`engine.localization` — position estimation providers.
 * :mod:`engine.flight_control` — flight-stack-agnostic command surface.
+* :mod:`engine.link` — ground-station link / keepalive monitoring.
 * :mod:`engine.telemetry` — in-flight telemetry plumbing.
 * :mod:`engine.sensors` — camera, IMU, depth, fiducials.
 

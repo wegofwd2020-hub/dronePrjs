@@ -31,3 +31,11 @@ SLAM_POLL_INTERVAL_S: float = 0.02
 #: Worst-case budget from first SLAM-loss observation to ``SAFE_HOVER``
 #: entry (s). ISC-12 mandates ≤ 200 ms; poll cadence must keep slack.
 SAFE_HOVER_MAX_LATENCY_S: float = 0.2
+
+#: Ground-station silence beyond this → return-to-home + land (ISC-15).
+#: Strict `>`: exactly at the timeout still counts as connected.
+LINK_LOSS_TIMEOUT_S: float = 5.0
+
+#: Bed between link-loss watchdog polls (s). Must be ≤ timeout / 2 so at
+#: least two polls fit inside the timeout window.
+LINK_POLL_INTERVAL_S: float = 0.5

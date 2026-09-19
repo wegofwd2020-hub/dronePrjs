@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Callable, TextIO
 
 from closedSpace.capture import CaptureSink
-from closedSpace.control import SlamWatchdog
+from closedSpace.control import LinkLossWatchdog, SlamWatchdog
 from closedSpace.map import Map, load
 from closedSpace.mission import MissionConfig, MissionPlan, plan
 from closedSpace.operator import (
@@ -34,8 +34,9 @@ from closedSpace.operator import (
 )
 from closedSpace.report import ReportBuilder
 from closedSpace.storage import LocalSink
-from engine.sim import SimCamera, SimFlightController, SimSLAM, SimWorld
+from engine.sim import SimCamera, SimFlightController, SimLinkMonitor, SimSLAM, SimWorld
 from engine.telemetry import InMemoryTelemetryBus, JSONLTelemetryLogger
+from engine.types import Pose
 
 #: Exit codes used by main() — kept stable so operators / CI can switch on them.
 EXIT_OK = 0
@@ -194,6 +195,17 @@ def _run_mission(
     )
 
     abort = AbortSignal()
+    # ISC-15 home: the first waypoint is always "takeoff"; its (x,y)
+    # is the pad center the drone returns to on link loss.
+    takeoff_wp = p.waypoints[0]
+    home_pose = Pose(
+        x=takeoff_wp.x,
+        y=takeoff_wp.y,
+        z=takeoff_wp.z,  # hover height — descend via land()
+        yaw_deg=0.0,
+        timestamp_ns=world.now_ns(),
+    )
+    link_monitor = SimLinkMonitor(clock=world.now_ns)
     with JSONLTelemetryLogger(mission_root / "telemetry.jsonl") as logger:
         logger.attach(
             bus,
@@ -208,6 +220,10 @@ def _run_mission(
             # ISC-12: SLAM loss → SAFE_HOVER watchdog, on the sim's clock
             # so StateChange timestamps and loss detection stay coherent.
             watchdog=SlamWatchdog(slam=slam, fc=fc, clock=world.now_ns),
+            # ISC-15: ground-station link loss → RTH + land, same clock.
+            link_watchdog=LinkLossWatchdog(
+                link=link_monitor, fc=fc, home=home_pose, clock=world.now_ns
+            ),
         )
         result = runner.run()
 
