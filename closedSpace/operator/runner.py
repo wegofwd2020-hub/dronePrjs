@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 
 from closedSpace.capture import CaptureSink
-from closedSpace.control import SlamWatchdog
+from closedSpace.control import LinkLossWatchdog, SlamWatchdog
 from closedSpace.mission import MissionPlan, Waypoint
 from closedSpace.report import ReportBuilder
 from engine.flight_control import ControllerState
@@ -85,6 +85,7 @@ class MissionRunner:
         bus: TelemetryBus | None = None,
         abort_signal: AbortSignal | None = None,
         watchdog: SlamWatchdog | None = None,
+        link_watchdog: LinkLossWatchdog | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> None:
         self._plan = plan
@@ -95,6 +96,7 @@ class MissionRunner:
         self._bus = bus
         self._abort = abort_signal or AbortSignal()
         self._watchdog = watchdog
+        self._link_watchdog = link_watchdog
         self._clock = clock or (lambda: datetime.now(timezone.utc))
         # Hook the controller's state stream into the report's
         # telemetry-summary counter without forcing every test to do it.
@@ -117,6 +119,13 @@ class MissionRunner:
                 aborted = True
                 abort_reason = self._watchdog.last_reason
                 self._handle_abort()
+                break
+            # ISC-15: link loss runs after SLAM — a SLAM loss parks the
+            # drone in SAFE_HOVER, which the link watchdog then lands
+            # directly if the link is gone too. It owns its RTH recovery.
+            if self._link_watchdog is not None and self._link_watchdog.poll():
+                aborted = True
+                abort_reason = self._link_watchdog.last_reason
                 break
             if self._abort.is_set():
                 aborted = True

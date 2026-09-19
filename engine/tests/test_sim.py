@@ -12,9 +12,16 @@ from __future__ import annotations
 import pytest
 
 from engine.flight_control import ControllerState, FlightController, StateChange
+from engine.link import LinkMonitor
 from engine.localization import SLAMProvider
 from engine.sensors import Camera, laplacian_focus_score
-from engine.sim import SimCamera, SimFlightController, SimSLAM, SimWorld
+from engine.sim import (
+    SimCamera,
+    SimFlightController,
+    SimLinkMonitor,
+    SimSLAM,
+    SimWorld,
+)
 from engine.telemetry import InMemoryTelemetryBus
 from engine.types import Pose
 
@@ -29,6 +36,7 @@ def test_sim_implements_protocols() -> None:
     assert isinstance(SimFlightController(w), FlightController)
     assert isinstance(SimSLAM(w), SLAMProvider)
     assert isinstance(SimCamera(w), Camera)
+    assert isinstance(SimLinkMonitor(w.now_ns), LinkMonitor)
 
 
 # ---------------------------------------------------------------------------
