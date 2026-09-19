@@ -116,9 +116,12 @@ class SimFlightController:
 
     def land(self) -> None:
         """Descend to z=0 and transition ``AIRBORNE → LANDING → DISARMED``."""
-        if self._state is not ControllerState.AIRBORNE:
+        if (
+            self._state is not ControllerState.AIRBORNE
+            and self._state is not ControllerState.SAFE_HOVER
+        ):
             raise RuntimeError(
-                f"land requires AIRBORNE; current state is {self._state.value}"
+                f"land requires AIRBORNE or SAFE_HOVER; current state is {self._state.value}"
             )
         self._transition(ControllerState.LANDING, reason="land()")
         p = self._world.pose
@@ -154,6 +157,10 @@ class SimFlightController:
         if self._state is ControllerState.SAFE_HOVER:
             return
         self._transition(ControllerState.SAFE_HOVER, reason=reason)
+
+    def request_safe_hover(self, reason: str) -> None:
+        """Protocol surface for ISC-12: drop to ``SAFE_HOVER`` (self-loop idempotent)."""
+        self.force_safe_hover(reason)
 
     def _transition(self, to: ControllerState, *, reason: str) -> None:
         change = StateChange(
