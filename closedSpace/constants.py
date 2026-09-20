@@ -39,3 +39,7 @@ LINK_LOSS_TIMEOUT_S: float = 5.0
 #: Bed between link-loss watchdog polls (s). Must be ≤ timeout / 2 so at
 #: least two polls fit inside the timeout window.
 LINK_POLL_INTERVAL_S: float = 0.5
+
+#: p99 perception-to-command latency budget (s). ISC-13 mandates < 50 ms
+#: over a 2-minute reference-mission soak (≥ 200 samples).
+PERCEPTION_CMD_LATENCY_P99_S: float = 0.050
