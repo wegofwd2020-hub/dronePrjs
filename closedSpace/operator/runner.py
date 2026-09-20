@@ -22,7 +22,7 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 
 from closedSpace.capture import CaptureSink
-from closedSpace.control import LinkLossWatchdog, SlamWatchdog
+from closedSpace.control import LatencyRecorder, LinkLossWatchdog, SlamWatchdog
 from closedSpace.mission import MissionPlan, Waypoint
 from closedSpace.report import ReportBuilder
 from engine.flight_control import ControllerState
@@ -86,6 +86,7 @@ class MissionRunner:
         abort_signal: AbortSignal | None = None,
         watchdog: SlamWatchdog | None = None,
         link_watchdog: LinkLossWatchdog | None = None,
+        recorder: LatencyRecorder | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> None:
         self._plan = plan
@@ -97,6 +98,7 @@ class MissionRunner:
         self._abort = abort_signal or AbortSignal()
         self._watchdog = watchdog
         self._link_watchdog = link_watchdog
+        self._recorder = recorder
         self._clock = clock or (lambda: datetime.now(timezone.utc))
         # Hook the controller's state stream into the report's
         # telemetry-summary counter without forcing every test to do it.
@@ -112,6 +114,10 @@ class MissionRunner:
         aborted = False
         abort_reason = ""
         for i, wp in enumerate(self._plan.waypoints):
+            # ISC-13: mark start of perception phase before any watchdog
+            # read — this is the first sensor interaction in the cycle.
+            if self._recorder is not None:
+                self._recorder.start()
             # ISC-12: watchdog is the highest-priority check — SLAM loss
             # preempts waypoint commands (and even an operator abort) so
             # the drone parks in SAFE_HOVER before anything else runs.
@@ -133,6 +139,10 @@ class MissionRunner:
                 self._handle_abort()
                 break
             self._execute(wp, takeoff_height_m=self._plan.waypoints[0].z)
+            # ISC-13: command issued — close the perception-to-command window.
+            if self._recorder is not None:
+                self._recorder.stop()
+                self._publish_latency(self._recorder.samples[-1])
             self._publish_progress(
                 "mission.progress",
                 payload={
@@ -173,6 +183,19 @@ class MissionRunner:
             self._fc.land()
         elif state is ControllerState.ARMED:
             self._fc.disarm()
+
+    def _publish_latency(self, latency_ns: int) -> None:
+        """Publish one control.latency sample to the telemetry bus."""
+        if self._bus is None:
+            return
+        self._bus.publish(
+            "control.latency",
+            {
+                "topic": "control.latency",
+                "timestamp_ns": int(self._clock().timestamp() * 1_000_000_000),
+                "payload": {"latency_ns": latency_ns},
+            },
+        )
 
     def _publish_progress(self, topic: str, *, payload: dict[str, Any]) -> None:
         if self._bus is None:
