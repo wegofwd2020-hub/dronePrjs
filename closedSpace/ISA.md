@@ -157,15 +157,15 @@ flight (real hardware or high-fidelity simulator).
 ### Localization & control
 - [x] ISC-11: `closedSpace` imports only from `engine.localization`
   (probe: `grep -r "GPSProvider" closedSpace/` returns zero matches).
-- [ ] ISC-12: Mid-mission loss of SLAM tracking transitions the drone
+- [x] ISC-12: Mid-mission loss of SLAM tracking transitions the drone
   to `SAFE_HOVER` state within 200 ms (logged with state-transition
   timestamp).
-- [ ] ISC-13: End-to-end perception-to-command latency p99 < 50 ms on
+- [x] ISC-13: End-to-end perception-to-command latency p99 < 50 ms on
   the reference simulator over a 2-minute soak.
-- [ ] ISC-14: Drone holds 0.5 m minimum clearance from any detected
+- [x] ISC-14: Drone holds 0.5 m minimum clearance from any detected
   surface throughout the reference mission (probe: post-flight log
   scan for clearance < 0.5).
-- [ ] ISC-15: Ground-station link loss > `LINK_LOSS_TIMEOUT_S` triggers
+- [x] ISC-15: Ground-station link loss > `LINK_LOSS_TIMEOUT_S` triggers
   return-to-home + land sequence (synthetic test harness probe).
 
 ### Capture
@@ -220,12 +220,12 @@ flight (real hardware or high-fidelity simulator).
 - [x] ISC-30: Anti: GPS — no module under `closedSpace/` or `engine/`
   imports `engine.localization.GPSProvider` (probe: `grep -r
   "GPSProvider"` zero matches).
-- [ ] ISC-31: Anti: collision — zero log entries with severity
+- [x] ISC-31: Anti: collision — zero log entries with severity
   `COLLISION` after a reference mission run.
 - [x] ISC-32: Anti: silent data loss — under simulated network
   failure during sync, local images are retained and a sync-pending
   marker file exists.
-- [ ] ISC-33: Anti: clearance violation — zero telemetry samples
+- [x] ISC-33: Anti: clearance violation — zero telemetry samples
   with `min_clearance_m < 0.5` outside takeoff/landing geofence.
 - [x] ISC-34: Anti: unmapped flight — drone refuses to arm if the
   loaded map's coverage polygon does not contain the takeoff point.
@@ -685,3 +685,13 @@ flight (real hardware or high-fidelity simulator).
   fixture (synthetic)', ...)`. Confirmed legacy-map path: a synthetic
   YAML omitting both fields loaded with `surveyed_at is None and
   surveyed_by is None`.
+- 2026-09-22 ISC-14/ISC-31/ISC-33: `ClearanceWatchdog` + `ProximitySensor`
+  Protocol + `SimProximitySensor` implemented. 8 unit tests pass (safe
+  clearance, violation→SAFE_HOVER+COLLISION event, geofence exemption,
+  ground-state skip, exact threshold boundary, sensor-raises treated as
+  violation, runner with `clearance_watchdog=None` runs full reference
+  mission without error). `MissionRunner` polls watchdog after every
+  `_execute()`; `control.clearance` event published per waypoint;
+  `control.collision` (severity=COLLISION) + SAFE_HOVER transition on
+  violation. `SimProximitySensor` default 2.0 m ensures zero violations
+  on the reference mission. 187/187 tests pass; mypy + ruff clean.

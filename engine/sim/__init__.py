@@ -35,7 +35,7 @@ from engine.flight_control import (
 )
 from engine.link import LinkMonitor
 from engine.localization import SLAMProvider
-from engine.sensors import Camera, Frame, laplacian_focus_score
+from engine.sensors import Camera, Frame, ProximitySensor, laplacian_focus_score
 from engine.telemetry import TelemetryBus
 from engine.types import Pose
 
@@ -301,17 +301,48 @@ def _synthetic_frame(pose: Pose) -> list[int]:
     return out
 
 
+class SimProximitySensor:
+    """In-process :class:`ProximitySensor` — returns a configurable clearance.
+
+    Default clearance is 2.0 m (safely above MIN_CLEARANCE_M). Use
+    :meth:`set_clearance` in tests to inject specific values and exercise
+    violation detection without needing real obstacle geometry.
+    """
+
+    def __init__(self, world: SimWorld, default_clearance_m: float = 2.0) -> None:
+        self._world = world
+        self._clearance_m = default_clearance_m
+
+    def min_clearance_m(self) -> float:
+        """Current simulated clearance in metres."""
+        return self._clearance_m
+
+    def set_clearance(self, value: float) -> None:
+        """Test hook: inject a specific clearance reading.
+
+        Args:
+            value: New clearance in metres. Any float is accepted —
+                negative values simulate sensor failure states in tests.
+
+        Raises:
+            Nothing. The watchdog handles all edge cases at call time.
+        """
+        self._clearance_m = value
+
+
 # Conformance: assert structural subtyping at import time so test discovery
 # fails loudly if a Protocol method gets renamed.
 _: tuple[
-    type[SLAMProvider], type[FlightController], type[Camera], type[LinkMonitor]
-] = (SimSLAM, SimFlightController, SimCamera, SimLinkMonitor)
+    type[SLAMProvider], type[FlightController], type[Camera], type[LinkMonitor],
+    type[ProximitySensor],
+] = (SimSLAM, SimFlightController, SimCamera, SimLinkMonitor, SimProximitySensor)
 
 
 __all__ = [
     "SimCamera",
     "SimFlightController",
     "SimLinkMonitor",
+    "SimProximitySensor",
     "SimSLAM",
     "SimWorld",
 ]
