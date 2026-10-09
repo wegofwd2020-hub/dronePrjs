@@ -22,7 +22,12 @@ from datetime import datetime, timezone
 from typing import Any, Callable
 
 from closedSpace.capture import CaptureSink
-from closedSpace.control import LatencyRecorder, LinkLossWatchdog, SlamWatchdog
+from closedSpace.control import (
+    ClearanceWatchdog,
+    LatencyRecorder,
+    LinkLossWatchdog,
+    SlamWatchdog,
+)
 from closedSpace.mission import MissionPlan, Waypoint
 from closedSpace.report import ReportBuilder
 from engine.flight_control import ControllerState
@@ -87,6 +92,7 @@ class MissionRunner:
         watchdog: SlamWatchdog | None = None,
         link_watchdog: LinkLossWatchdog | None = None,
         recorder: LatencyRecorder | None = None,
+        clearance_watchdog: ClearanceWatchdog | None = None,
         clock: Callable[[], datetime] | None = None,
     ) -> None:
         self._plan = plan
@@ -99,6 +105,7 @@ class MissionRunner:
         self._watchdog = watchdog
         self._link_watchdog = link_watchdog
         self._recorder = recorder
+        self._clearance_watchdog = clearance_watchdog
         self._clock = clock or (lambda: datetime.now(timezone.utc))
         # Hook the controller's state stream into the report's
         # telemetry-summary counter without forcing every test to do it.
@@ -143,6 +150,14 @@ class MissionRunner:
             if self._recorder is not None:
                 self._recorder.stop()
                 self._publish_latency(self._recorder.samples[-1])
+            # ISC-14: check clearance after every execute — log telemetry,
+            # abort on violation (control.collision severity=COLLISION).
+            if self._clearance_watchdog is not None:
+                if self._clearance_watchdog.poll():
+                    aborted = True
+                    abort_reason = self._clearance_watchdog.last_reason
+                    self._handle_abort()
+                    break
             self._publish_progress(
                 "mission.progress",
                 payload={

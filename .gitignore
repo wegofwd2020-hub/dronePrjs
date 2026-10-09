@@ -36,3 +36,9 @@ opencode.jasonc
 .clinerules/
 .opencode/
 .github/copilot-instructions.md
+AGENTS.md
+
+# Local-only: trashed files log and per-machine Claude memory copy
+TRASH/
+TRASH-FILES.md
+memory/

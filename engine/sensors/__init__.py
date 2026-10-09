@@ -113,4 +113,27 @@ def laplacian_focus_score(
     return sum((v - mean) ** 2 for v in laplacian) / n
 
 
-__all__ = ["Camera", "Frame", "laplacian_focus_score"]
+@runtime_checkable
+class ProximitySensor(Protocol):
+    """Minimum distance to any detected surface in the drone's vicinity.
+
+    Real implementations read from depth cameras, ultrasonic rangers, or
+    LiDAR. The sim stub returns a configurable value via :meth:`set_clearance`.
+    """
+
+    def min_clearance_m(self) -> float:
+        """Minimum distance to any detected surface, in metres.
+
+        Returns:
+            Distance in metres. Values < MIN_CLEARANCE_M indicate a
+            clearance violation that must be handled by the caller.
+
+        Raises:
+            RuntimeError: If the sensor is not started or has failed.
+                The caller (ClearanceWatchdog) treats any exception as a
+                violation — unknown clearance is unsafe.
+        """
+        ...
+
+
+__all__ = ["Camera", "Frame", "ProximitySensor", "laplacian_focus_score"]

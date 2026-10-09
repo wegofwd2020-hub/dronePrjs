@@ -43,3 +43,8 @@ LINK_POLL_INTERVAL_S: float = 0.5
 #: p99 perception-to-command latency budget (s). ISC-13 mandates < 50 ms
 #: over a 2-minute reference-mission soak (≥ 200 samples).
 PERCEPTION_CMD_LATENCY_P99_S: float = 0.050
+
+#: Height below which clearance checks are suspended (m). The drone
+#: legitimately passes through this zone during takeoff climb and
+#: landing descent. ISC-33 "outside takeoff/landing geofence".
+CLEARANCE_GEOFENCE_HEIGHT_M: float = 1.0

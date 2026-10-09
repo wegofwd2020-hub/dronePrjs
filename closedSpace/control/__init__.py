@@ -1,5 +1,9 @@
 """closedSpace.control — safety-critical flight-time control.
 
+* :class:`ClearanceWatchdog` — ISC-14/33 per-waypoint clearance enforcer.
+  Polls a :class:`ProximitySensor` after every ``_execute()``; logs
+  ``control.clearance`` telemetry and transitions to ``SAFE_HOVER`` on
+  violation (also emits ``control.collision`` with severity ``COLLISION``).
 * :class:`SlamWatchdog` — ISC-12 loss-of-tracking detector. Polls SLAM
   confidence while airborne and drops the controller to ``SAFE_HOVER``
   within the mission latency budget.
@@ -10,13 +14,14 @@
   latency recorder. Driven synchronously by the mission runner loop;
   exposes p99 in both ns and s for soak-test assertions.
 
-Public surface is intentionally small: two watchdogs + one recorder,
+Public surface is intentionally small: three watchdogs + one recorder,
 all driven synchronously by the mission runner's loop.
 """
 from __future__ import annotations
 
+from closedSpace.control.clearance_watchdog import ClearanceWatchdog
 from closedSpace.control.latency import LatencyRecorder
 from closedSpace.control.link_watchdog import LinkLossWatchdog
 from closedSpace.control.watchdog import SlamWatchdog
 
-__all__ = ["LatencyRecorder", "LinkLossWatchdog", "SlamWatchdog"]
+__all__ = ["ClearanceWatchdog", "LatencyRecorder", "LinkLossWatchdog", "SlamWatchdog"]
